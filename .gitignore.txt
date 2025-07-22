@@ -1,0 +1,2 @@
+# Ignore all sketch.properties files in all folders
+**/sketch.properties
