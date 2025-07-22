@@ -1,2 +1,2 @@
 # Processing_py
-Fun Way Data visualization with Py in Processing :)
+Fun Way of Data visualization with Py in Processing :)
