@@ -13,42 +13,106 @@
 def setup():
     size(640,360)
     
-    # initializing the instance list
-    global conf
-    conf = []
+    global t, msg, count
     
-    # appending objects in the list
-    for i in range(50):
-        conf.append(Confetti()) 
+    # starting msg on screen
+    msg = "Click anywhere to burst..."
+    t = "{t}" .format(t = msg)
+    
+    # count meter to manage the memory
+    count = 0
+    
+    # initializing a main_list to hold all the bursts (each burst is a list of confettis)
+    global all_bursts
+    all_bursts = []
+    
         
 # mousePressed event
 def mousePressed():
     
+    global t, count
+    
+    
+    # Creating a new_list of bursts when mousepressed
+    new_burst = []
+    
     # for all the objs in the list, when mousePressed, 'x' 'y' values updates
-    for c in conf:
+    for i in range(50):
+        c = Confetti()
         c.burst(mouseX, mouseY)
+        # all 'c' objs are stored in this list
+        new_burst.append(c)
+    
+    # and then, appending new_burst in main_list;   //to retain all the confettis
+    all_bursts.append(new_burst)
+
+    count +=1 
+    
+    t = " Press 'c' to clear screen..."
+    print "count", count
+    
+    # assigning a limit for msg
+    if count >5:
+        t = " Now Clear, or PC will burst"
+        
 
 
 def draw():
     
     background(0)
     
-    # calling the funcs for every obj in the list
-    for c in conf:
-        c.update()
-        c.show()
+    global t
+    
+    # text attributes
+    fill(200)
+    textSize(15)
+    text(t, 10, 20)
+    
+    # when first clicked, msg changes
+    # if mousePressed:
+    #     t = " Press 'c' to clear screen..."
+    
+    
+    
+    # calling the funcs for every obj from the list in the lists
+    for burst in all_bursts:
+        for c in burst:
+            c.update()
+            c.show()
     
 
-" CONFETTI class"
+
+
+def keyPressed():
+    
+    global all_bursts, t, msg, count
+    
+    if key == 'c':
+        all_bursts = []
+        
+        #  back to start msg, to start again
+        t = "{t}" .format(t = msg)
+        
+        # start count again
+        count = 0
+
+
+
+
+
+" -------------------CONFETTI class-------------------------"
 
 class Confetti(object):
     
     # constructor arguments
     def __init__(self):
         
+        # toggle to control the visibility of confettis; Turns on only when mousePressed      //avoids the starting draw of the confettis
+        self.active = False
+        
         # assigning 'x' 'y' somewhere out of the screensize, so not to see them in start
-        self.x = -1000           
-        self.y = -1000
+        self.x = 0            
+        self.y = 0
         # size 
         self.s = 15
         
@@ -58,7 +122,7 @@ class Confetti(object):
         
         # physics_variables
         self.gravity = 0.5        # downward force
-        self.damping = 0.7      # factor for lose of energy after bounce ; Y direcn collision
+        self.damping = 0.6        # factor for lose of energy after bounce ; Y direcn collision
         self.wall_damping = 0.8   # damping factor for X direcn collision
         
         # color
@@ -66,21 +130,25 @@ class Confetti(object):
         
     # draws the confettis
     def show(self):
-
-        fill(self.clr)
-        noStroke()
         
-        circle( self.x, self.y, self.s)
+        # checking the toggle
+        if self.active:
+            fill(self.clr)
+            noStroke()
+            
+            circle( self.x, self.y, self.s)
     
     # func that updates the x,y vals, and assigns speed when mousepressed
     def burst(self, mx, my):
         
+        # Toggle on
+        self.active = True
         # 'x' 'y' values of circles are assigned from mouseX and mouseY
         self.x = mx
         self.y = my
         
         # takes random values, feels natural
-        self.x_speed = random(-5,5)
+        self.x_speed = random(-8,8)
         self.y_speed = random(-5,5)
     
     
@@ -99,7 +167,7 @@ class Confetti(object):
         self.checkbounce()
         
         
-    #### Want to make the balls bounce as they hit on the floor.............JLOOOOOO
+    """ Want to make the balls bounce as they hit on the floor.............JLOOOOOO """
     # func that checks if confettis hit the bottom_edge
     def checkbounce(self):
         
@@ -114,7 +182,7 @@ class Confetti(object):
             """ damping the energy """
             # multiplying with a neg factor, reverses the direcn and reduces the velocity,
             self.y_speed *= -self.damping
-            print self.y_speed
+            # print self.y_speed
             
             # friction in 'x'
             self.x_speed *= 0.7
